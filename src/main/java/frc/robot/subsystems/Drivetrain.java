@@ -1,205 +1,78 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.kauailabs.navx.frc.AHRS;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.RobotMap;
 import frc.robot.commands.TeleOpDrive;
 import frc.util.PS4Gamepad;
 
 /**
- *
+ * Add your docs here.
  */
 public class Drivetrain extends Subsystem {
-	
-	public double driveFactor;
-	public double turnFactor;
-	public double strafeFactor;
-	
-	//P Gain
-	private final double Kp = -2.1;
-	
-	public double input = Robot.gearPosition;
-	public double output;
-	//Talons
-	public WPI_TalonSRX rearleftMotor = new WPI_TalonSRX(RobotMap.rearleftMotor);
-	public WPI_TalonSRX rearrightMotor = new WPI_TalonSRX(RobotMap.rearrightMotor);
-	public WPI_TalonSRX frontrightMotor = new WPI_TalonSRX(RobotMap.frontrightMotor);
-	public WPI_TalonSRX frontleftMotor = new WPI_TalonSRX(RobotMap.frontleftMotor);
-    
-    public MecanumDrive driveArcade = new MecanumDrive(frontleftMotor, rearleftMotor, frontrightMotor, rearrightMotor);
+  public TalonSRX leftFrontDrive = new TalonSRX(RobotMap.frontleftMotor);
+  public TalonSRX rightFrontDrive = new TalonSRX(RobotMap.frontrightMotor);
+  public TalonSRX leftRearDrive = new TalonSRX(RobotMap.rearleftMotor);
+  public TalonSRX rightRearDrive = new TalonSRX(RobotMap.rearrightMotor);
 
-	public WPI_TalonSRX climbMotorA = new WPI_TalonSRX(RobotMap.climbMotorA);
-	public WPI_TalonSRX climbMotorB = new WPI_TalonSRX(RobotMap.climbMotorB);	
-	
-	//Encoders
-	public Encoder encoderLeft = new Encoder(RobotMap.encoderALeft, RobotMap.encoderBLeft, false);
-	public Encoder encoderRight = new Encoder(RobotMap.encoderARight, RobotMap.encoderBRight, false);
-	
-	//Sensors
-	public AnalogGyro gyro = new AnalogGyro(RobotMap.gyro);
-	public AHRS navX = new AHRS(SPI.Port.kMXP);
-	public AnalogInput ultrasonic = new AnalogInput(RobotMap.ultrasonic);
-	
-	//VisionTracking
-	public DigitalInput leftRotate = new DigitalInput(RobotMap.leftRotate);
-	public DigitalInput rightRotate = new DigitalInput(RobotMap.rightRotate);
+  public void joystickControl(PS4Gamepad gp) {
+    //Tele-Op Driving
+    //Each Motor is Set to Brake Mode, the motor speeds are set in an Arcade Drive fashion
+    double y = gp.getLeftYAxis()*-.9;
+    double rot = gp.getRightXAxis()*.8;
 
-	//Drivetrain
-	public void driveArcade(PS4Gamepad gp) {
-		driveArcade.driveCartesian(0,gp.getLeftYAxis() * -driveFactor,  -gp.getRightXAxis()* -turnFactor, 0);
-		getDriveFactor();
-		getTurnFactor();
-	}
-	
-	public void DriveStraight(double Magnitude, double Direction, double Rotation) {
-		driveArcade.drivePolar(Magnitude, ((Direction-getAngle())* Kp) + 90, Rotation);
-	}
-
-	public void autoDrive(double X, double Y, double Rotation, double gyroAngle) {
-		driveArcade.driveCartesian(X, Y, Rotation, getAngle());
-	}
-	
-	public void strafeRight() {
-		frontleftMotor.set(strafeFactor);
-		rearleftMotor.set(-strafeFactor);
-		frontrightMotor.set(strafeFactor);
-		rearrightMotor.set(-strafeFactor);
-	}
-	
-	public void strafeLeft() {
-		frontrightMotor.set(-strafeFactor);
-		rearrightMotor.set(strafeFactor);
-		frontleftMotor.set(-strafeFactor);
-		rearleftMotor.set(strafeFactor);
-	}
-	
-	public double getDriveFactor() {
-		return driveFactor = SmartDashboard.getNumber("Driving Speed", 1);
-	}
-	
-	public double getTurnFactor() {
-		return turnFactor = SmartDashboard.getNumber("Turning Speed", .65);
-	}
-	
-	public double getStrafeFactor() {
-		return strafeFactor = SmartDashboard.getNumber("Strafing Speed", .75);
-	}
-	
-	//Use this for Feedback Driving (targetAngle-getAngle*Gain)
-	
-	public void rotateRight() {
-		driveArcade.driveCartesian(0, 0, -.35, 0);
-	}
-	
-	public void rotateLeft() {
-		driveArcade.driveCartesian(0, 0, .35, 0);
-	}
-
-	public void autoStrafeLeft(double strafeSpeed) {
-		frontrightMotor.set(-strafeSpeed);
-		rearrightMotor.set(strafeSpeed);
-		frontleftMotor.set(-strafeSpeed);
-		rearleftMotor.set(strafeSpeed);
-	}
-	
-	public void autoStrafeRight(double strafeSpeed) {
-		frontrightMotor.set(strafeSpeed);
-		rearrightMotor.set(-strafeSpeed);
-		frontleftMotor.set(strafeSpeed);
-		rearleftMotor.set(-strafeSpeed);
-	}
-	
-	public void rotate(double speed) {
-		frontrightMotor.set(speed);
-		rearrightMotor.set(speed);
-		frontleftMotor.set(speed);
-		rearleftMotor.set(speed);
-	}
-
-	public void DriveBackward() {
-		rearleftMotor.set(-.5); //Negitive Back
-		rearrightMotor.set(.5); //Positive Back
-		frontrightMotor.set(-.5); //Negitive Back
-		frontleftMotor.set(.5); //Postive Back
-	}
-	
-	public void DriveForward() {
-		rearleftMotor.set(.5); //Negitive Back
-		rearrightMotor.set(-.5); //Positive Back
-		frontrightMotor.set(.5); //Negitive Back
-		frontleftMotor.set(-.5); //Postive Back
-	}
-	
-	public void stopDriving() {
-		driveArcade.stopMotor();
-	}
-	
-    //Sensors
-	public void resetGyro() {
-		navX.reset();
-		navX.resetDisplacement();
-	}
-	
-	public double getAngle() {
-		return navX.getYaw();
-	}
-	
-	public void resetEncoder() {
-		encoderLeft.reset();
-		encoderRight.reset();
-	}
+    //Calculated Outputs (Limits Output to 12V)
+    double leftOutput = y + rot;
+    double rightOutput = rot - y;
 
 
-	/**1440 pulses is one rotation
-	 * 1 Rotation of a 6'' wheel is 18.85''
-	 * 18.85'' is a little over 18 and 7/8 in
-	 * For every 1440 pulses the Robot should move 18.85''
-	 * For every 76.39 pulses the Robot should move 1''
-	 * For every 1 Pulse the Robot should move 0.0130902777778''
-	 * Our mecanum wheel has a circumference of  19'' making our DPP 0.0131944444444'' 
-	**/
-	
-	public void setDistancePerPulse() {
-		encoderLeft.setDistancePerPulse(0.0542416666666667);
-		encoderRight.setDistancePerPulse(0.0542416666666667);
-	}
-	
-	public double getLeftDistance() {
-		return encoderLeft.getDistance();
-	}
-	
-	public double getRightDistance() {
-		return encoderRight.getDistance();
-	}
+    //Set Motor's Neutral/Idle Mode to Brake
+    leftFrontDrive.setNeutralMode(NeutralMode.Brake);
+    rightFrontDrive.setNeutralMode(NeutralMode.Brake);
+    leftRearDrive.setNeutralMode(NeutralMode.Brake);
+    rightRearDrive.setNeutralMode(NeutralMode.Brake); 
 
-	//Climber
-	public void Climb() {
-		climbMotorA.set(-.95);
-		climbMotorB.set(-.95);
-	}
-	
-	public void stopClimb() {
-		climbMotorA.set(0);
-		climbMotorB.set(0);
-	}
-	
-	public void slowClimb() {
-		climbMotorA.set(-.45);
-		climbMotorB.set(-.45);
-	}
-	
-	public void initDefaultCommand() {
-        setDefaultCommand(new TeleOpDrive());
-    }
+    //Assigns Each Motor's Power
+    leftFrontDrive.set(ControlMode.PercentOutput, leftOutput);
+    rightFrontDrive.set(ControlMode.PercentOutput, rightOutput);
+    leftRearDrive.follow(leftFrontDrive);
+    rightRearDrive.follow(rightFrontDrive);
+
+
+  }
+
+  public void strafeRight() {
+    leftFrontDrive.set(ControlMode.PercentOutput, .9);
+    leftRearDrive.set(ControlMode.PercentOutput, -.9);
+    rightFrontDrive.set(ControlMode.PercentOutput, .9);
+    rightRearDrive.set(ControlMode.PercentOutput, -.9);
+  }
+  
+  public void strafeLeft() {
+    rightFrontDrive.set(ControlMode.PercentOutput, -0.9);
+    rightRearDrive.set(ControlMode.PercentOutput, 0.9);
+    leftFrontDrive.set(ControlMode.PercentOutput, -0.9);
+    leftRearDrive.set(ControlMode.PercentOutput, 0.9);
 }
 
+  public void stopDrive()  {
+    leftFrontDrive.set(ControlMode.PercentOutput, 0);
+    rightFrontDrive.set(ControlMode.PercentOutput, 0);
+  }
+  
+  @Override
+  public void initDefaultCommand() {
+    setDefaultCommand(new TeleOpDrive());
+    
+  }
+}
