@@ -12,9 +12,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.controllers.PS4Gamepad;
 import frc.robot.RobotMap;
 import frc.robot.commands.TeleOpDrive;
-import frc.util.PS4Gamepad;
 
 /**
  * Add your docs here.

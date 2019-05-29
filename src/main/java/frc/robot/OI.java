@@ -8,9 +8,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.buttons.Button;
+import frc.controllers.PS4Gamepad;
+import frc.robot.commands.Climb;
+import frc.robot.commands.CycleFuel;
+import frc.robot.commands.GearEject;
+import frc.robot.commands.Shoot;
 import frc.robot.commands.StrafeLeft;
 import frc.robot.commands.StrafeRight;
-import frc.util.PS4Gamepad;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -34,10 +38,23 @@ public class OI {
 		//Driver Buttons
 		Button driverL2 = driverPad.getL2();
 		Button driverR2 = driverPad.getR2();
+		Button driverX = driverPad.getButtonX();
+		Button driverCircle = driverPad.getButtonCircle();
+		Button driverSquare = driverPad.getButtonSquare();
+		Button driverR1 = driverPad.getR1();
+
+
 		//Operator Buttons
 		// Button operatorTriangle = operatorPad.getButtonTriangle();
-
+		
 		driverL2.whileHeld(new StrafeLeft());
 		driverR2.whileHeld(new StrafeRight());
+		driverX.whileHeld(new CycleFuel());
+		driverSquare.whileHeld(new GearEject());
+		driverR1.whileHeld(new Climb());
+
+		driverCircle.toggleWhenPressed(new Shoot());
+
+
 	}
 }

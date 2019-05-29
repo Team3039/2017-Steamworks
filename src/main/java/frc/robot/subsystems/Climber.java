@@ -16,39 +16,25 @@ import frc.robot.RobotMap;
 /**
  * Add your docs here.
  */
-public class Shooter extends Subsystem {
-  public TalonSRX shooter = new TalonSRX(RobotMap.shootMotor);
-  public TalonSRX ballStager = new TalonSRX (RobotMap.stagingMotor);
-  public TalonSRX ballDial = new TalonSRX (RobotMap.agitatorMotor);
-  // Put methods for controlling this subsystem
-  // here. Call these from Commands.public 
+public class Climber extends Subsystem {
+  public TalonSRX climbA = new TalonSRX(RobotMap.climbMotorA);
+  public TalonSRX climbB = new TalonSRX(RobotMap.climbMotorB);
+
+  public void climb () {
+    climbA.set(ControlMode.PercentOutput, -.8);
+    climbB.follow(climbA);
+  }
+ public void stopClimb () {
+   climbA.set(ControlMode.PercentOutput, 0);
+   climbB.follow(climbA);
+  }
+ 
+
   
-  public void startShooter () {
-    shooter.set(ControlMode.PercentOutput, .75);
-  }
-
-  public void startStaging() {
-    ballStager.set(ControlMode.PercentOutput, .70);
-  } 
-  public void startDial (){ 
-    ballDial.set(ControlMode.PercentOutput, -.40);
-   }
-
-   public void stopShooter() {
-     shooter.set(ControlMode.PercentOutput, 0);
-   }
-
-  public void stopStaging () {
-    ballStager.set(ControlMode.PercentOutput, 0);
-  }
-   public void stopDial (){  
-    ballDial.set(ControlMode.PercentOutput, 0); }
-    
 
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
     // setDefaultCommand(new MySpecialCommand());
-
   }
 }
