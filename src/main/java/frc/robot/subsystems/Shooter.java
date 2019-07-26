@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -24,14 +25,16 @@ public class Shooter extends Subsystem {
   // here. Call these from Commands.public 
   
   public void startShooter () {
-    shooter.set(ControlMode.PercentOutput, .75);
+    shooter.configOpenloopRamp(1);
+    shooter.set(ControlMode.PercentOutput, .9);
+    shooter.setNeutralMode(NeutralMode.Coast);
   }
 
   public void startStaging() {
-    ballStager.set(ControlMode.PercentOutput, .70);
+    ballStager.set(ControlMode.PercentOutput, .85);
   } 
   public void startDial (){ 
-    ballDial.set(ControlMode.PercentOutput, -.40);
+    ballDial.set(ControlMode.PercentOutput, -.70);
    }
 
    public void stopShooter() {
